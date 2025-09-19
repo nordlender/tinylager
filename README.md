@@ -9,6 +9,7 @@ It is a work in progress.
 - Add "extend rental" button
 
 ### General
+- Add header with buttons on all non-user pages
 - Add inventory page
 - Add "add to inventory" interface for non-technical users (might be tricky) to add new products
 - Add authentication page that uses external API with OAuth to make sure that only members can access the app
