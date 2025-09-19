@@ -24,8 +24,8 @@ Make sure SQLite 3 is installed on your system, for example
 sudo apt install sqlite3
 ```
 
-You can then install dependencies
-```uv add requirements.txt```
+You can then install dependencies. It is recommended that you use uv. Since there is already a `pyproject.toml` you can simply do
+```uv sync```
 or
 ```pip install requirements.txt```
 
@@ -40,7 +40,11 @@ sqlite3 orders.db .schema
 ```
 
 ## Usage
-The app is spun up by running `main.py`. You can do this 
+The app is spun up by running `main.py`. It is recommended that `uv` is used by doing
+```bash
+uv run main.py
+```
+This will ensure that the correct virtual environment is used.
 
 ## To do
 ### Order overview
