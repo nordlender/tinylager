@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Rent-a-Gear</title>
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=send,shopping_bag"
+    />
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="{{ url_for('static', filename='tailwind.js') }}"></script>
+
+    <script src="{{ url_for('static', filename='scripts.js') }}"></script>
+  </head>
+
+  <!-- --------- -->
+
+  <body class="bg-background min-h-screen text-gray-900 flex flex-col">
+    <!-- Header -->
+    <header
+      class="bg-neutralLight text-white shadow-lg flex justify-center items-center py-8"
+    >
+      <h1 class="text-5xl md:text-6xl font-bold text-brand text-center">
+        🎒 Rent-a-Gear
+      </h1>
+    </header>
+
+    <main class="flex-1 max-w-6xl mx-auto w-full p-6 pb-32">
+      <h2 class="text-xl font-semibold mb-4 text-neutralDark">
+        Select the items you want to rent
+      </h2>
+
+      <!-- Filter -->
+      <div
+        class="bg-accent1 text-white rounded-xl p-4 mb-6 flex items-center gap-4"
+      >
+        <label for="category-filter" class="font-semibold"
+          >Filter by Category:</label
+        >
+        <select
+          id="category-filter"
+          onchange="filterItems()"
+          class="rounded-md p-2 text-gray-900"
+        >
+          <option value="all" selected>All</option>
+          <option value="shoes">Shoes</option>
+          <option value="protection">Protection</option>
+          <option value="slings">Slings</option>
+          <option value="rope">Rope</option>
+          <option value="ice climbing">Ice Climbing</option>
+          <option value="quickdraws">Quickdraws</option>
+          <option value="helmets">Helmets</option>
+          <option value="harnesses">Harnesses</option>
+          <option value="carabiners">Carabiners</option>
+          <option value="belay devices">Belay Devices</option>
+        </select>
+      </div>
+
+      <!-- Items -->
+      <form id="gear-form" method="POST" class="space-y-6">
+        <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {% for key, item in inventory.items() %}
+          <div
+            class="item-wrapper flex flex-col bg-accent2 rounded-2xl shadow-lg overflow-hidden transition-all {% if item.stock == 0 %}opacity-50 pointer-events-none{% endif %}"
+            data-category="{{ item.category }}"
+          >
+            <!-- Left panel -->
+            <div class="flex flex-col items-center bg-white p-4">
+              <img
+                src="{{ item.img }}"
+                alt="{{ item.title }}"
+                class="w-full h-40 object-cover rounded-xl mb-3"
+              />
+              <div
+                id="title-{{key}}"
+                class="item-title font-semibold text-lg text-center px-2 py-1 rounded-lg transition"
+              >
+                {{ item.title }}
+              </div>
+            </div>
+            <!-- Right panel -->
+            <div
+              id="info-{{key}}"
+              class="flex flex-col justify-between p-4 flex-1 transition-all"
+            >
+              <div id="desc-{{key}}" class="item-desc mb-4">
+                {{ item.description }}
+              </div>
+              <div class="flex items-center gap-3">
+                <div
+                  class="flex items-center border border-gray-300 rounded-xl overflow-hidden bg-white shadow-sm"
+                >
+                  <input
+                    type="number"
+                    id="count-{{key}}"
+                    name="{{key}}"
+                    value="0"
+                    min="0"
+                    max="{{item.stock}}"
+                    oninput="updateCounter('{{key}}', {{item.stock}})"
+                    class="w-16 py-2 text-center focus:outline-none focus:ring-2 focus:ring-brand appearance-none text-black"
+                  />
+                </div>
+                <div id="stock-{{key}}" class="text-sm text-gray-700">
+                  / {{ item.stock }}
+                </div>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </form>
+    </main>
+
+    <!-- Fixed Bottom Bar -->
+    <div
+      id="bottom-bar"
+      class="fixed bottom-4 left-1/2 -translate-x-1/2 w-[90%] max-w-lg bg-white rounded-full shadow-lg flex items-center justify-between px-6 py-3 opacity-50 transition"
+    >
+      <!-- Submit button -->
+      <button
+        type="button"
+        onclick="document.getElementById('gear-form').submit()"
+        class="flex items-center justify-center bg-accent1 hover:bg-blue-700 text-white font-semibold rounded-full px-4 py-3 shadow-md transition gap-2"
+      >
+        <span class="material-symbols-outlined">send</span>
+        <span>Review Order</span>
+      </button>
+
+      <!-- Shopping bag with count -->
+      <div class="flex items-center gap-2 text-brand">
+        <span class="material-symbols-outlined">shopping_bag</span>
+        <span id="bag-count">0</span>
+      </div>
+    </div>
+  </body>
+</html>

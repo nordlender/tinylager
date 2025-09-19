@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<title>Return Items</title>
+	<script src="https://cdn.tailwindcss.com"></script>
+	<script src="{{ url_for('static', filename='tailwind.js') }}"></script>
+</head>
+
+<body class="bg-neutralLight min-h-screen flex flex-col">
+
+	<!-- Header -->
+	<header class="bg-brand text-white p-4 shadow-lg flex justify-center">
+		<h1 class="text-2xl font-bold">↩️ Return Items</h1>
+	</header>
+
+	<main class="flex-1 flex flex-col justify-center items-center p-6">
+
+		{% if not order %}
+		<!-- Form to enter order ID -->
+		<form method="POST" class="bg-white p-8 rounded-2xl shadow-lg w-full max-w-md space-y-4">
+			<label for="orderId" class="block font-semibold">Enter Order ID:</label>
+			<input type="number" name="orderId" id="orderId" required
+				class="w-full border rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-brand">
+			<button type="submit"
+				class="bg-accent1 text-white rounded-full px-4 py-2 shadow-md font-semibold hover:bg-blue-700 transition w-full">
+				Fetch Order
+			</button>
+		</form>
+
+		{% else %}
+		<!-- Display order items for return -->
+		<form method="POST" class="bg-white p-8 rounded-2xl shadow-lg w-full max-w-3xl space-y-6">
+			<div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+				{% for key, item in order.items() %}
+				<div class="flex flex-col bg-accent2 rounded-xl p-4">
+					<div class="font-semibold text-center mb-2">{{ item['title'] }}</div>
+					<img src="{{ item['img'] }}" alt="{{ item['title'] }}" class="w-full h-32 object-cover rounded-lg mb-2">
+					<div class="text-sm text-gray-700 mb-2">{{ item['desc'] }}</div>
+					<div class="flex items-center gap-2">
+						<input type="number" min="0" value="0" name="{{ key }}"
+							class="w-full border rounded-md p-1 text-center focus:outline-none focus:ring-2 focus:ring-brand">
+						<span>Lended: {{ item['lended'] }} | Already returned: {{ item['returned'] }}</span>
+					</div>
+				</div>
+				{% endfor %}
+			</div>
+
+			<div>
+				<label for="name" class="block font-semibold">Your Name *</label>
+				<input type="text" name="name" id="name" required
+					class="w-full border rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-brand">
+			</div>
+
+			{% if warning %}
+			<div class="text-red-600 font-semibold">
+				Warning! Returned amount is larger than registered. Are you sure? Please check.
+			</div>
+			{% endif %}
+
+			<button type="submit"
+				class="bg-accent1 text-white rounded-full px-4 py-3 shadow-md font-semibold hover:bg-blue-700 transition w-full">
+				Return
+			</button>
+		</form>
+		{% endif %}
+
+	</main>
+
+</body>
+
+</html>

@@ -1,0 +1,165 @@
+:root {
+  --primary: #d80700;
+  --accent1: #8a78bf;
+  --accent2: #c5caff;
+  --accent3: #ddd9e6;
+  --background: #595e7c;
+  --text-light: #fff;
+  --text-dark: #333;
+  --disabled: #999;
+}
+
+body {
+  margin: 0;
+  font-family: "Segoe UI", Roboto, sans-serif;
+  background: var(--background);
+  color: var(--text-light);
+}
+
+header {
+  background: var(--primary);
+  padding: 1rem;
+  text-align: center;
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+main {
+  padding: 1.5rem;
+  max-width: 1000px;
+  margin: auto;
+}
+
+h2 {
+  margin-bottom: 1rem;
+  text-align: center;
+  color: var(--accent3);
+}
+
+.filter-menu {
+	background: var(--)
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 20px;
+}
+
+.item-wrapper {
+  display: flex;
+  background: var(--accent1);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.25);
+  transition: transform 0.2s;
+}
+
+.left-panel {
+  flex: 0 0 180px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  background: var(--accent2);
+}
+
+.left-panel img {
+  width: 100%;
+  object-fit: cover;
+}
+
+.item-title {
+  padding: 0.5rem;
+  text-align: center;
+  background: var(--accent2);
+  color: var(--text-dark);
+  font-weight: bold;
+  width: 100%;
+}
+
+.item-selected {
+  background: var(--primary) !important;
+  color: var(--text-light) !important;
+}
+
+.right-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  background: var(--accent3);
+  padding: 1rem;
+}
+
+.item-desc {
+  flex: 1;
+  color: var(--text-dark);
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+}
+
+.counter {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.counter input {
+  width: 60px;
+  text-align: center;
+  font-size: 1rem;
+  border: none;
+  border-radius: 6px;
+  padding: 0.3rem;
+}
+
+.item-stock {
+  font-size: 0.9rem;
+  color: var(--text-dark);
+}
+
+.form-fields {
+  margin-top: 2rem;
+  background: var(--accent1);
+  padding: 1rem;
+  border-radius: 12px;
+}
+
+.form-fields label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: bold;
+  color: var(--accent3);
+}
+
+.form-fields input {
+  width: 100%;
+  padding: 0.7rem;
+  margin-bottom: 1rem;
+  border-radius: 8px;
+  border: none;
+}
+
+button.submit-btn {
+  display: block;
+  margin: 2rem auto 0 auto;
+  padding: 0.8rem 2rem;
+  font-size: 1rem;
+  font-weight: bold;
+  color: var(--text-light);
+  background: var(--primary);
+  border: none;
+  border-radius: 30px;
+  cursor: pointer;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+button.submit-btn:hover {
+  background: #b40600;
+  transform: scale(1.05);
+}
+
+button.submit-btn:active {
+  transform: scale(0.97);
+}

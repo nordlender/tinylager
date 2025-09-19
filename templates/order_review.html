@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<title>Review Your Selection</title>
+	<link rel="stylesheet"
+		href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=send,shopping_bag" />
+	<script src="https://cdn.tailwindcss.com"></script>
+	<script src="{{ url_for('static', filename='tailwind.js') }}"></script>
+</head>
+
+<body class="bg-background min-h-screen text-gray-900 flex flex-col">
+
+	<!-- Header -->
+	<header class="bg-brand text-white p-4 shadow-lg flex justify-center">
+		<h1 class="text-2xl font-bold">📝 Review Your Gear</h1>
+	</header>
+
+	<main class="flex-1 max-w-4xl mx-auto w-full p-6">
+		<form method="POST" class="space-y-8">
+
+			<!-- Cart items -->
+			<div class="space-y-6">
+				{% for key, item in cart.items() %}
+				<div class="flex items-center bg-white rounded-xl shadow-md p-4 gap-4">
+					<img src="{{ item.img }}" alt="{{ item.title }}"
+						class="w-28 h-28 object-cover rounded-lg border border-gray-200">
+					<div class="flex-1">
+						<div class="font-semibold text-lg">{{ item.title }}</div>
+						<div class="text-sm text-gray-600">{{ item.description }}</div>
+					</div>
+					<div class="flex items-center gap-2">
+						<input type="number" name="{{ key }}" value="{{ item.count }}" min="0" max="{{ item.stock }}"
+							class="w-20 py-2 px-2 text-center border rounded-md focus:outline-none focus:ring-2 focus:ring-brand">
+						<span class="text-sm text-gray-500">/ {{ item.stock }}</span>
+					</div>
+				</div>
+				{% endfor %}
+			</div>
+
+			<!-- User details -->
+			<div class="bg-white rounded-xl shadow-lg p-6 space-y-4">
+				<div>
+					<label for="name" class="block font-semibold">Your Name *</label>
+					<input type="text" id="name" name="name" required
+						class="mt-1 w-full border rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-brand">
+				</div>
+				<div>
+					<label for="phone" class="block font-semibold">Phone Number *</label>
+					<input type="tel" id="phone" name="phone" required
+						class="mt-1 w-full border rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-brand">
+				</div>
+			</div>
+
+			<!-- Submit -->
+			<div class="flex justify-end">
+				<button type="submit"
+					class="flex items-center gap-2 bg-accent1 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-full shadow-md">
+					<span class="material-symbols-outlined">send</span>
+					Submit Order
+				</button>
+			</div>
+		</form>
+	</main>
+</body>
+
+</html>

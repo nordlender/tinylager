@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Review Return</title>
+	<script src="https://cdn.tailwindcss.com"></script>
+	<script src="{{ url_for('static', filename='tailwind.js') }}"></script>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=warning" />
+</head>
+<body class="bg-gray-100 min-h-screen flex flex-col">
+
+  <div class="flex-grow container mx-auto px-4 py-8">
+    <h1 class="text-2xl font-bold mb-6">Review Your Return</h1>
+
+    <form method="POST" class="space-y-6">
+
+      <!-- Items -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for itemId, item in cart_return.items() %}
+        <div class="bg-white rounded-xl shadow-md p-4">
+          <img src="{{ item.img }}" alt="{{ item.title }}" class="w-full h-40 object-cover rounded-lg mb-3">
+          <h2 class="text-lg font-semibold">{{ item.title }}</h2>
+          <p class="text-sm text-gray-600">{{ item.description }}</p>
+						<p class="text-sm text-gray-500">{{item.remaining}} remaining out of {{ item.lent }}</p>
+
+          <input 
+            type="number" 
+            name="{{ itemId }}" 
+            value="0" 
+            min="0" 
+            class="mt-2 w-full border rounded-lg px-2 py-1"
+          >
+
+          <!-- Warning if returned exceeds lent -->
+          {% if itemId in warning_items %}
+          <div class="mt-3 flex items-center bg-orange-100 border border-orange-300 rounded-lg p-2">
+            <span class="material-symbols-outlined text-orange-500 mr-2">warning</span>
+            <p class="text-sm text-orange-700">
+              The amount returned exceeds the amount lent! Please check again, and submit when ready.
+            </p>
+          </div>
+          {% endif %}
+        </div>
+        {% endfor %}
+      </div>
+
+      <!-- Name -->
+      <div class="bg-white rounded-xl shadow-md p-4">
+        <label for="name" class="block text-sm font-medium text-gray-700">Your Name</label>
+        <input type="text" id="name" name="name" value="{{ name }}" required
+               class="mt-1 w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent1">
+      </div>
+
+      <!-- Proceed field if warnings -->
+      {% if warning_items %}
+      <input type="hidden" name="proceed" value="1">
+      {% endif %}
+
+      <!-- Submit -->
+      <div class="fixed bottom-0 left-0 right-0 bg-white shadow-md py-3 px-6 flex justify-center">
+        <button type="submit"
+          class="flex items-center space-x-2 bg-accent1 text-white px-6 py-3 rounded-2xl shadow-md hover:opacity-90 disabled:opacity-50">
+          <span>Return</span>
+        </button>
+      </div>
+    </form>
+  </div>
+
+</body>
+</html>
