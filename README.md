@@ -11,12 +11,6 @@ It is a work in progress.
 - A simple database with redundant tables in case this sucks
 - An inventory page where fields can be edited
 
-## Dependencies
-Flask.
-```uv add requirements.txt```
-or
-```pip install requirements.txt```
-
 ## Installation/setup
 ### Dependencies
 Make sure SQLite 3 is installed on your system, for example
@@ -29,6 +23,7 @@ You can then install dependencies. It is recommended that you use uv. Since ther
 or
 ```pip install requirements.txt```
 
+### Setup database
 Then, the database has to be added
 ```bash
 touch orders.db && sqlite3 orders.db '.read schema.sql'
