@@ -147,6 +147,74 @@ def set_returned(orderId):
     db.commit()
 
 
+def edit_inventory(itemId, field, newValue):
+    """
+    Edit a specific field of an inventory item.
+    itemId: the unique itemId
+    field: the column to update (title, description, img, stock, max_stock, category, etc.)
+    newValue: the new value for the field
+    """
+    if field not in {
+        "title",
+        "description",
+        "img",
+        "stock",
+        "max_stock",
+        "category",
+        "itemId",
+    }:
+        raise ValueError(f"Invalid field: {field}")
+
+    if field == "itemId":
+        edit_itemid(itemId, newValue)
+    else:
+        db = get_db()
+        cur = db.cursor()
+
+        # Convert stock/max_stock to integers if needed
+        if field in {"stock", "max_stock"}:
+            try:
+                newValue = int(newValue)
+            except ValueError:
+                raise ValueError(f"{field} must be an integer")
+
+        cur.execute(
+            f"UPDATE inventory SET {field} = ? WHERE itemId = ?", (newValue, itemId)
+        )
+        db.commit()
+
+
+def edit_itemid(old_id, new_id):
+    if len(new_id) < 5:
+        return
+
+    db = get_db()
+    cur = db.cursor()
+    try:
+        cur.execute("BEGIN")
+
+        # Update inventory
+        cur.execute(
+            "UPDATE inventory SET itemId = ? WHERE itemId = ?", (new_id, old_id)
+        )
+
+        # Update references in all related tables
+        cur.execute(
+            "UPDATE order_items SET itemId = ? WHERE itemId = ?", (new_id, old_id)
+        )
+        cur.execute(
+            "UPDATE return_items SET itemId = ? WHERE itemId = ?", (new_id, old_id)
+        )
+        cur.execute(
+            "UPDATE archive_items SET itemId = ? WHERE itemId = ?", (new_id, old_id)
+        )
+
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        raise e
+
+
 # --- Database Helpers ---
 def get_db():
     if "_database" not in g:
@@ -181,7 +249,7 @@ def utility_processor():
         cur = db.cursor()
         cur.execute("SELECT * FROM order_items WHERE orderId = ?", (orderId,))
         return cur.fetchall()
-    
+
     def get_archive_items(orderId):
         """Gets the items in an archived order"""
         db = get_db()
@@ -190,7 +258,6 @@ def utility_processor():
         return cur.fetchall()
 
     return dict(get_order_items=get_order_items, get_archive_items=get_archive_items)
-
 
 
 #
@@ -248,7 +315,7 @@ def order_review():
 
         db.commit()
         session.pop("cart", None)
-        return f"✅ Order #{orderId} stored successfully!"
+        return redirect(url_for("completed"))
 
     return render_template("order_review.html", cart=cart)
 
@@ -378,6 +445,64 @@ def orders():
     return render_template(
         "orders.html", active_orders=active_orders, archived_orders=archived_orders
     )
+
+
+@app.route("/inventory")
+def inventory():
+    db = get_db()
+    cur = db.cursor()
+    cur.execute("SELECT * FROM inventory ORDER BY category, title")
+    inventory = cur.fetchall()
+    return render_template("inventory.html", inventory=inventory)
+
+
+@app.route("/inventory/edit", methods=["POST"])
+def inventory_edit():
+    itemId = request.form.get("itemId")
+    field = request.form.get("field")
+    newValue = request.form.get("newValue", "").strip()
+
+    if not itemId or not field:
+        return "Missing parameters", 400
+
+    db = get_db()
+    cur = db.cursor()
+
+    # Determine field type & validate
+    int_fields = {"stock", "max_stock"}
+    text_fields = {"title", "category", "description", "img"}
+
+    if field in int_fields:
+        try:
+            newValueInt = int(newValue)
+        except ValueError:
+            return f"{field} must be an integer", 400
+        if newValueInt < 0:
+            return f"{field} cannot be negative", 400
+        newValue = newValueInt
+
+    elif field in text_fields:
+        if len(newValue) < 5:
+            return f"{field} must be at least 5 characters long", 400
+
+    elif field == "itemId":
+        if len(newValue) < 5:
+            return "itemId must be at least 5 characters long", 400
+        try:
+            edit_itemid(itemId, newValue)
+            return "OK", 200
+        except Exception as e:
+            return f"Error renaming itemId: {e}", 500
+
+    else:
+        return "Invalid field", 400
+
+    # Update the inventory field
+    cur.execute(
+        f"UPDATE inventory SET {field} = ? WHERE itemId = ?", (newValue, itemId)
+    )
+    db.commit()
+    return "OK", 200
 
 
 # Only run if called directly (main.py will import this)

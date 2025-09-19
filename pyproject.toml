@@ -1,0 +1,9 @@
+[project]
+name = "osi-lager-web"
+version = "0.1.0"
+description = "A small web app for managing rentals"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "flask>=3.1.2",
+]

@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Rent-a-Gear Inventory</title>
+
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=cancel,check_circle,edit"
+    />
+
+    <style>
+      .material-symbols-outlined {
+        font-variation-settings:
+          "FILL" 0,
+          "wght" 400,
+          "GRAD" 0,
+          "opsz" 24;
+      }
+    </style>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="{{ url_for('static', filename='tailwind.js') }}"></script>
+    <script src="{{ url_for('static', filename='scripts.js') }}"></script>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        let editingField = null;
+
+        document.querySelectorAll(".group").forEach((container) => {
+          const fieldValueDiv = container.querySelector(".field-value");
+          const editBtn = container.querySelector(".edit-btn");
+          const itemId = container.dataset.item;
+          const field = container.dataset.field;
+
+          editBtn.addEventListener("click", async () => {
+            if (editingField) return; // only one editable field at a time
+            editingField = container;
+
+            const oldValue = fieldValueDiv.textContent.trim();
+            fieldValueDiv.innerHTML = `<input type="text" value="${oldValue}" class="border rounded px-1 py-0.5 w-3/4 text-sm mr-2">`;
+
+            // Hide the edit button
+            editBtn.style.display = "none";
+
+            // Create confirm button
+            const confirmBtn = document.createElement("button");
+            confirmBtn.textContent = "Confirm";
+            confirmBtn.className =
+              "bg-green-500 text-white px-2 py-1 rounded mr-1 text-sm cursor-pointer";
+
+            // Create cancel button
+            const cancelBtn = document.createElement("button");
+            cancelBtn.textContent = "Cancel";
+            cancelBtn.className =
+              "bg-red-500 text-white px-2 py-1 rounded text-sm cursor-pointer";
+
+            container.appendChild(confirmBtn);
+            container.appendChild(cancelBtn);
+
+            confirmBtn.addEventListener("click", async () => {
+              const newValue = fieldValueDiv
+                .querySelector("input")
+                .value.trim();
+
+              // POST to /inventory/edit
+              const formData = new FormData();
+              formData.append("itemId", itemId);
+              formData.append("field", field);
+              formData.append("newValue", newValue);
+
+              const res = await fetch("/inventory/edit", {
+                method: "POST",
+                body: formData,
+              });
+
+              if (!res.ok) {
+                const text = await res.text();
+                alert("Error: " + text);
+                return;
+              }
+
+              fieldValueDiv.textContent = newValue;
+              container.removeChild(confirmBtn);
+              container.removeChild(cancelBtn);
+              editBtn.style.display = "block";
+              editingField = null;
+            });
+
+            cancelBtn.addEventListener("click", () => {
+              fieldValueDiv.textContent = oldValue;
+              container.removeChild(confirmBtn);
+              container.removeChild(cancelBtn);
+              editBtn.style.display = "block";
+              editingField = null;
+            });
+          });
+        });
+      });
+    </script>
+  </head>
+  <body>
+    {% include "navbar.html" %}
+
+    <div class="container mx-auto px-4 py-6">
+      <h1 class="text-4xl font-bold text-brand text-center mb-8">
+        📦 Inventory
+      </h1>
+
+      <div class="bg-white shadow-lg rounded-lg p-6 mb-8">
+        <h2 class="text-2xl font-semibold mb-4">Manage Inventory</h2>
+        <div class="flex flex-wrap gap-4">
+          <a
+            class="bg-brand hover:bg-brandDark text-white font-semibold py-2 px-4 rounded-lg shadow"
+          >
+            ➕ Add New Items
+          </a>
+          <a
+            class="bg-brand hover:bg-brandDark text-white font-semibold py-2 px-4 rounded-lg shadow"
+          >
+            🔢 Count
+          </a>
+        </div>
+      </div>
+
+      <div class="bg-white shadow-lg rounded-lg p-6">
+        <h2 class="text-2xl font-semibold mb-4">Current Stock</h2>
+        <div class="mb-6">{% include "filter.html" %}</div>
+
+        <div class="overflow-x-auto">
+          <table class="min-w-full border border-gray-200 rounded-lg">
+            <thead class="bg-gray-100">
+              <tr>
+                <th class="px-4 py-2 text-left">Item ID</th>
+                <th class="px-4 py-2 text-left">Title</th>
+                <th class="px-4 py-2 text-left">Category</th>
+                <th class="px-4 py-2 text-left">Stock</th>
+                <th class="px-4 py-2 text-left">Max Stock</th>
+                <th class="px-4 py-2 text-left">Description</th>
+                <th class="px-4 py-2 text-left">Image Path</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for item in inventory %}
+              <tr class="border-t hover:bg-gray-50">
+                {% for field in
+                ["itemId","title","category","stock","max_stock","description","img"]
+                %}
+                <td class="px-4 py-2">
+                  <div
+                    class="relative group"
+                    data-item="{{ item.itemId }}"
+                    data-field="{{ field }}"
+                  >
+                    <!-- Field data -->
+                    <div class="field-value">{{ item[field] }}</div>
+                    <!-- Edit button (shown on hover) -->
+                    <div
+                      class="edit-btn absolute right-0 top-0 opacity-0 group-hover:opacity-100 bg-accent1 text-white text-sm px-2 py-1 rounded cursor-pointer"
+                    >
+                      Edit
+                    </div>
+                  </div>
+                </td>
+                {% endfor %}
+              </tr>
+              {% else %}
+              <tr>
+                <td colspan="7" class="px-4 py-4 text-center text-gray-500">
+                  No inventory items found.
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
