@@ -30,70 +30,64 @@
         document.querySelectorAll(".group").forEach((container) => {
           const fieldValueDiv = container.querySelector(".field-value");
           const editBtn = container.querySelector(".edit-btn");
+          const confirmBtn = container.querySelector(".confirm-btn");
+          const cancelBtn = container.querySelector(".cancel-btn");
           const itemId = container.dataset.item;
           const field = container.dataset.field;
+
+          let oldValue = ""; // Moved this declaration here
 
           editBtn.addEventListener("click", async () => {
             if (editingField) return; // only one editable field at a time
             editingField = container;
 
-            const oldValue = fieldValueDiv.textContent.trim();
+            oldValue = fieldValueDiv.textContent.trim(); // Store old value on edit
+
+            // Replace the field's text with an input
             fieldValueDiv.innerHTML = `<input type="text" value="${oldValue}" class="border rounded px-1 py-0.5 w-3/4 text-sm mr-2">`;
 
-            // Hide the edit button
-            editBtn.style.display = "none";
+            // Hide the edit button and show the confirm/cancel buttons
+            editBtn.classList.add("hidden");
+            confirmBtn.classList.remove("hidden");
+            cancelBtn.classList.remove("hidden");
+          });
 
-            // Create confirm button
-            const confirmBtn = document.createElement("button");
-            confirmBtn.textContent = "Confirm";
-            confirmBtn.className =
-              "bg-green-500 text-white px-2 py-1 rounded mr-1 text-sm cursor-pointer";
+          confirmBtn.addEventListener("click", async () => {
+            const newValue = fieldValueDiv.querySelector("input").value.trim();
 
-            // Create cancel button
-            const cancelBtn = document.createElement("button");
-            cancelBtn.textContent = "Cancel";
-            cancelBtn.className =
-              "bg-red-500 text-white px-2 py-1 rounded text-sm cursor-pointer";
+            // POST to /inventory/edit
+            const formData = new FormData();
+            formData.append("itemId", itemId);
+            formData.append("field", field);
+            formData.append("newValue", newValue);
 
-            container.appendChild(confirmBtn);
-            container.appendChild(cancelBtn);
-
-            confirmBtn.addEventListener("click", async () => {
-              const newValue = fieldValueDiv
-                .querySelector("input")
-                .value.trim();
-
-              // POST to /inventory/edit
-              const formData = new FormData();
-              formData.append("itemId", itemId);
-              formData.append("field", field);
-              formData.append("newValue", newValue);
-
-              const res = await fetch("/inventory/edit", {
-                method: "POST",
-                body: formData,
-              });
-
-              if (!res.ok) {
-                const text = await res.text();
-                alert("Error: " + text);
-                return;
-              }
-
-              fieldValueDiv.textContent = newValue;
-              container.removeChild(confirmBtn);
-              container.removeChild(cancelBtn);
-              editBtn.style.display = "block";
-              editingField = null;
+            const res = await fetch("/inventory/edit", {
+              method: "POST",
+              body: formData,
             });
 
-            cancelBtn.addEventListener("click", () => {
-              fieldValueDiv.textContent = oldValue;
-              container.removeChild(confirmBtn);
-              container.removeChild(cancelBtn);
-              editBtn.style.display = "block";
-              editingField = null;
-            });
+            if (!res.ok) {
+              const text = await res.text();
+              alert("Error: " + text);
+              return;
+            }
+
+            // Update the field value and reset the buttons
+            fieldValueDiv.textContent = newValue;
+            confirmBtn.classList.add("hidden");
+            cancelBtn.classList.add("hidden");
+            editBtn.classList.remove("hidden");
+            editingField = null;
+          });
+
+          cancelBtn.addEventListener("click", () => {
+            // Revert to old value
+            fieldValueDiv.textContent = oldValue;
+            // Hide confirm and cancel buttons and show edit button
+            confirmBtn.classList.add("hidden");
+            cancelBtn.classList.add("hidden");
+            editBtn.classList.remove("hidden");
+            editingField = null;
           });
         });
       });
@@ -156,9 +150,26 @@
                     <div class="field-value">{{ item[field] }}</div>
                     <!-- Edit button (shown on hover) -->
                     <div
-                      class="edit-btn absolute right-0 top-0 opacity-0 group-hover:opacity-100 bg-accent1 text-white text-sm px-2 py-1 rounded cursor-pointer"
+                      class="absolute right-0 top-0 text-white text-xs flex items-center"
                     >
-                      Edit
+                      <div
+                        class="edit-btn opacity-0 group-hover:opacity-100 bg-accent1 text-white text-xs px-1 py-0.5 rounded cursor-pointer flex items-center"
+                      >
+                        <span class="material-symbols-outlined">edit</span>
+                        <span>Edit</span>
+                      </div>
+                      <div
+                        class="confirm-btn hidden bg-limeGreen text-white text-xs px-1 py-0.5 rounded cursor-pointer flex items-center mr-1"
+                      >
+                        <span class="material-symbols-outlined"
+                          >check_circle</span
+                        >
+                      </div>
+                      <div
+                        class="cancel-btn hidden bg-brand text-white text-xs px-1 py-0.5 rounded cursor-pointer flex items-center"
+                      >
+                        <span class="material-symbols-outlined">cancel</span>
+                      </div>
                     </div>
                   </div>
                 </td>
