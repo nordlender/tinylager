@@ -32,7 +32,7 @@
       </h2>
 
       <!-- Filter -->
-			{% include "filter.html" %}
+      {% include "filter.html" %}
 
       <!-- Items -->
       <form id="gear-form" method="POST" class="space-y-6">
@@ -70,17 +70,15 @@
                 >
                   <input
                     type="number"
-                    id="count-{{key}}"
-                    name="{{key}}"
+                    name="{{ itemId }}"
                     value="0"
                     min="0"
-                    max="{{item.stock}}"
-                    oninput="updateCounter('{{key}}', {{item.stock}})"
-                    class="w-16 py-2 text-center focus:outline-none focus:ring-2 focus:ring-brand appearance-none text-black"
+                    max="{{ [item.stock, item.max_available]|min }}"
+                    class="border rounded px-2 py-1 w-16 text-center"
                   />
                 </div>
                 <div id="stock-{{key}}" class="text-sm text-gray-700">
-                  / {{ item.stock }}
+									/ {{ [item.stock, item.max_available]|min }}
                 </div>
               </div>
             </div>
