@@ -10,8 +10,10 @@ CREATE TABLE inventory (
     category TEXT NOT NULL,
     img TEXT,
     description TEXT,
-    stock INTEGER NOT NULL
-, max_stock INTEGER DEFAULT 0);
+    max_available INTEGER NOT NULL DEFAULT 1,
+    stock INTEGER NOT NULL,
+    max_stock INTEGER DEFAULT 0
+);
 CREATE TABLE returns (
     returnId INTEGER PRIMARY KEY AUTOINCREMENT,
     orderId INTEGER NOT NULL,             -- original order
