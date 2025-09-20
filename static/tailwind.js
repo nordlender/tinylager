@@ -10,6 +10,7 @@ tailwind.config = {
                 neutralLight: "#f1f5f9",
                 neutralMid: "#6b6e96",
                 neutralDark: "#464863",
+								limeGreen: "#32cd32",
             }
         }
     }
